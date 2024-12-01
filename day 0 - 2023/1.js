@@ -31,20 +31,37 @@ import { join } from "path"
 
 const txt = readFileSync(join(import.meta.dirname, "./input.txt"), "utf-8")
 const lines = txt.split("\n")
-
+const NUMBERS = [
+    { word: "one", number: 1 },
+    { word: "two", number: 2 },
+    { word: "three", number: 3 },
+    { word: "four", number: 4 },
+    { word: "five", number: 5 },
+    { word: "six", number: 6 },
+    { word: "seven", number: 7 },
+    { word: "eight", number: 8 },
+    { word: "nine", number: 9 },
+]
 function isolateNumbers(arr) {
     const numMatrix = []
-    for (const line of arr) {
+    for (let line of arr) {
         const num = []
-        for (let i = 0; i < line.length; i++) {
-            const char = line.at(i)
-            if (!isNaN(char)) { //e' una lettera
-                num.push(char)
-            }
+        for (const number of NUMBERS) {
+            line = line.replaceAll(number.word, number.number)
         }
+        for (let i = 0; i < line.length; i++) {
+            //lettera per lettera
+            const char = line.at(i)
+            if (!isNaN(char)) {
+            //e' un numero
+                num.push(char)
+            } 
+
+        }
+
         numMatrix.push(num)
     }
-    return numMatrix;
+    return numMatrix
 }
 function getFirstAndLast(arr) {
     return [arr[0], arr[arr.length - 1]]
@@ -55,15 +72,16 @@ const matrix = isolateNumbers(lines)
 function getTwoDigitNumber(line) {
     const firstAndLast = getFirstAndLast(line)
     const twoDigit = firstAndLast[0] + firstAndLast[1]
-    return twoDigit
+    return parseInt(twoDigit)
 }
 
 let final = 0
 for (const line of matrix) {
-    final += parseInt(getTwoDigitNumber(line))
+    console.log(line, getTwoDigitNumber(line))
+    if (isNaN(getTwoDigitNumber(line))) throw "WTF"
+    final += getTwoDigitNumber(line)
 }
 console.log(final)
-
 
 /* 
 Your calculation isn't quite right. It looks like some of the digits are actually spelled out with letters: one, two, three, four, five, six, seven, eight, and nine also count as valid "digits".
