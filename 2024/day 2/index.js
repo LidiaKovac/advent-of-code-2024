@@ -15,13 +15,12 @@ const levels = input
 // The levels are either all increasing or all decreasing.
 // Any two adjacent levels differ by at least one and at most three.
 let safe_levels = 0
-
-for (const level of levels) {
+const checkSafe = (arr) => {
   let is_safe = true
   let is_decreasing = false
   let is_increasing = false
-  for (let i = 0; i < level.length; i++) {
-    const not_abs_diff = level[i] - level[i + 1]
+  for (let i = 0; i < arr.length; i++) {
+    const not_abs_diff = arr[i] - arr[i + 1]
     const diff = Math.abs(not_abs_diff)
 
     if (diff === 0 || diff > 3) {
@@ -42,8 +41,21 @@ for (const level of levels) {
       is_increasing = true
     }
   }
-
+  return is_safe
+}
+for (const level of levels) {
+  const is_safe = checkSafe(level)
   if (is_safe) {
     safe_levels++
+  } else {
+    for (let i = 0; i < level.length; i++) {
+      const reduced = level.toSpliced(i, 1)
+      const is_safe = checkSafe(reduced)
+      if (is_safe) {
+        safe_levels++
+        break
+      }
+    }
   }
 }
+console.log(safe_levels)
