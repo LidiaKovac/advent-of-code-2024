@@ -10,7 +10,6 @@ const input = readFileSync(join(import.meta.dirname, "./input.txt"), "utf-8")
 // 3   9
 // 3   3`
 
-
 const rows = input.split("\n").filter(line => line.length > 0)
 const nums = rows.map(row => row.split("   "))
 const left = nums.map(arr => arr[0]).sort()
@@ -22,9 +21,6 @@ for (let i = 0; i < left.length; i++) {
 }
 
 console.log(tot)
-
-// Calculate a total similarity score by adding up each number in the left
-//list after multiplying it by the number of times that number appears in the right list.
 
 let similarity_score_total = 0
 for (let i = 0; i < left.length; i++) {
