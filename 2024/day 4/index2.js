@@ -68,9 +68,10 @@ console.log()
 
 const diagonal = diagonals
   .map((col) => col.join(""))
-  //   .filter((el) => el.length > 4)
+    .filter((el) => el.length > 4)
+    
   .join("\n")
-console.log(diagonal)
+// console.log(diagonal)
 const diagonalFinds = [...diagonal.matchAll(new RegExp("(?=(XMAS|SAMX))", "g"))]
 // console.log(diagonalFinds)
 
