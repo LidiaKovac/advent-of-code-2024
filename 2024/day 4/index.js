@@ -130,28 +130,32 @@ class Matrix {
   }
 
   checkRow(row) {
-    console.log(
-      [
-        ...row.join("").matchAll(new RegExp("XMAS(?!AMX)|(?<!XMA)SAMX", "g")),
-      ].flat()
-    )
-    return [
+    const match = [
       ...row.join("").matchAll(new RegExp("XMAS(?!AMX)|(?<!XMA)SAMX", "g")),
     ].flat()
+    console.log("single", match)
+
+    return match.length
   }
 
   checkDouble(row) {
-    console.log(row.join("").match(new RegExp("(?=(XMASAMX))", "g")))
-
-    return row.join("").match(new RegExp("(?=(XMASAMX))", "g"))
+    const match = [...row.join("").matchAll(new RegExp("(?=(XMASAMX))", "g"))]
+      .flat()
+      .filter((el) => el.length > 0)
+    console.log(
+      "double",
+      match.filter((el) => el.length > 0)
+    )
+    return match.length > 0 ? match.length + 1 : match.length
   }
 
   isXMAS() {
     this.counter = 0
     for (let y = 0; y < this.matrix.length; y++) {
       // checkrows
-      this.counter += this.checkRow(this.matrix[y]).length
-      this.counter += this.checkDouble(this.matrix[y]) ? 1 : 0
+      console.log(this.matrix[y])
+      this.counter += this.checkRow(this.matrix[y])
+      this.counter += this.checkDouble(this.matrix[y])
     }
     console.log("Counter after rows ", this.counter)
     const columns = []
@@ -159,10 +163,10 @@ class Matrix {
       const column = this.matrix.map((row) => row[x])
       columns.push(column)
     }
-    // for (const col of columns) {
-    //   this.counter += this.checkRow(col).length
-    //   this.counter += this.checkDouble(col) ? 1 : 0
-    // }
+    for (const col of columns) {
+      this.counter += this.checkRow(col)
+      this.counter += this.checkDouble(col)
+    }
     console.log("Counter after cols ", this.counter)
 
     const diagonals = []
@@ -171,17 +175,25 @@ class Matrix {
       let diagTopLeft = []
       for (let x = 0; x < this.matrix[y].length; x++) {
         // console.log(x, y + x)
+        // console.log(x, y + x)
+
         if (this.matrix[x][y + x]) {
           diagTopLeft.push(this.matrix[x][y + x])
         }
       }
+      console.log(diagTopLeft)
+      console.log("---")
       let diagTopRight = []
       for (let x = 0; x < this.matrix[y].length; x++) {
         // console.log(x, y + x)
+        // console.log(x, y + x)
+
         if (this.matrix[x][y - x]) {
           diagTopRight.push(this.matrix[x][y - x])
         }
       }
+      console.log(diagTopRight)
+      console.log("---")
       diagonals.push(diagTopLeft)
       diagonals.push(diagTopRight)
     }
@@ -190,17 +202,24 @@ class Matrix {
       let diagTopLeft = []
       for (let x = 0; x < reversed[y].length; x++) {
         // console.log(x, y + x)
+
         if (reversed[x][y + x]) {
           diagTopLeft.push(reversed[x][y + x])
         }
       }
+      console.log(diagTopLeft)
+      console.log("---")
       let diagTopRight = []
       for (let x = 0; x < reversed[y].length; x++) {
+        // console.log(x, y + x)
+
         // console.log(x, y + x)
         if (reversed[x][y - x]) {
           diagTopRight.push(reversed[x][y - x])
         }
       }
+      console.log(diagTopRight)
+      console.log("---")
       diagonals.push(diagTopLeft)
       diagonals.push(diagTopRight)
     }
@@ -245,12 +264,14 @@ class Matrix {
     //   }
     //   console.log(diagonal3)
     // }
-    // console.log(diagonals.length)
+    console.log(diagonals)
 
     // console.log(new Set(diagonals))
-    for (const d of diagonals) {
-      this.counter += this.checkRow(d).length
-      this.counter += this.checkDouble(d) ? 1 : 0
+    const set = new Set(diagonals.map((l) => l.join("")))
+    const unique = [...set].map((l) => l.split(""))
+    for (const d of unique) {
+      this.counter += this.checkRow(d)
+      this.counter += this.checkDouble(d)
     }
   }
 }
