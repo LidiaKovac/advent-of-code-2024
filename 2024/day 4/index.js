@@ -144,7 +144,6 @@ for (let y = 0; y < matrix.length; y++) {
       getBottomLeft(y, x) === "M" &&
       getBottomRight(y, x) === "S"
     ) {
-      console.log("Case 1")
       pt2Counter++
     }
     /* 
@@ -159,8 +158,6 @@ for (let y = 0; y < matrix.length; y++) {
       getBottomLeft(y, x) === "M" &&
       getBottomRight(y, x) === "M"
     ) {
-      console.log("Case 2")
-
       pt2Counter++
     }
     /* 
@@ -175,8 +172,6 @@ for (let y = 0; y < matrix.length; y++) {
       getBottomLeft(y, x) === "S" &&
       getBottomRight(y, x) === "M"
     ) {
-      console.log("Case 3")
-
       pt2Counter++
     }
     /* 
@@ -190,8 +185,6 @@ for (let y = 0; y < matrix.length; y++) {
       getBottomLeft(y, x) === "S" &&
       getBottomRight(y, x) === "S"
     ) {
-      console.log("Case 4")
-
       pt2Counter++
     }
   }
