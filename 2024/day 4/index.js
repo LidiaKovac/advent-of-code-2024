@@ -2,6 +2,17 @@ import { readFileSync } from "fs"
 import { join } from "path"
 import { getMatrixFromString } from "../utils/index.js"
 
+// const input = `.M.S......
+// ..A..MSMS.
+// .M.S.MAA..
+// ..A.ASMSM.
+// .M.S.M....
+// ..........
+// S.S.S.S.S.
+// .A.A.A.A..
+// M.M.M.M.M.
+// ..........`
+
 const input = readFileSync(join(import.meta.dirname, "./input.txt"), "utf-8")
 // check horr
 const getFoundAmount = (input) => {
@@ -12,6 +23,7 @@ const getFoundAmount = (input) => {
 let counter = getFoundAmount(input)
 
 const matrix = getMatrixFromString(input)
+// console.log(matrix)
 
 const columns = []
 for (let x = 0; x < matrix[0].length; x++) {
@@ -91,4 +103,98 @@ diagonals.push(...extractDiagonals(reversedMatrix))
 // check diags
 counter += getFoundAmount(diagonals.join("\n"))
 
-console.log(counter)
+// console.log(counter)
+
+const getTopLeft = (y, x) => {
+  if (matrix[y - 1] && matrix[y - 1][x - 1]) {
+    return matrix[y - 1][x - 1]
+  } else return false
+}
+
+const getTopRight = (y, x) => {
+  if (matrix[y - 1] && matrix[y - 1][x + 1]) {
+    return matrix[y - 1][x + 1]
+  } else return false
+}
+
+const getBottomRight = (y, x) => {
+  if (matrix[y + 1] && matrix[y + 1][x + 1]) {
+    return matrix[y + 1][x + 1]
+  } else return false
+}
+
+const getBottomLeft = (y, x) => {
+  if (matrix[y + 1] && matrix[y + 1][x - 1]) {
+    return matrix[y + 1][x - 1]
+  } else return false
+}
+
+let pt2Counter = 0
+for (let y = 0; y < matrix.length; y++) {
+  const row = matrix[y]
+  for (let x = 0; x < row.length; x++) {
+    const char = row[x]
+    if (char !== "A") continue
+    /*M . S
+      . A .
+      M . S*/
+    if (
+      getTopLeft(y, x) === "M" &&
+      getTopRight(y, x) === "S" &&
+      getBottomLeft(y, x) === "M" &&
+      getBottomRight(y, x) === "S"
+    ) {
+      console.log("Case 1")
+      pt2Counter++
+    }
+    /* 
+    S . S
+    . A .
+    M . M
+    */
+
+    if (
+      getTopLeft(y, x) === "S" &&
+      getTopRight(y, x) === "S" &&
+      getBottomLeft(y, x) === "M" &&
+      getBottomRight(y, x) === "M"
+    ) {
+      console.log("Case 2")
+
+      pt2Counter++
+    }
+    /* 
+    S . S
+    . A .
+    M . M
+    */
+
+    if (
+      getTopLeft(y, x) === "S" &&
+      getTopRight(y, x) === "M" &&
+      getBottomLeft(y, x) === "S" &&
+      getBottomRight(y, x) === "M"
+    ) {
+      console.log("Case 3")
+
+      pt2Counter++
+    }
+    /* 
+    M . M
+    . A .
+    S . S
+    */
+    if (
+      getTopLeft(y, x) === "M" &&
+      getTopRight(y, x) === "M" &&
+      getBottomLeft(y, x) === "S" &&
+      getBottomRight(y, x) === "S"
+    ) {
+      console.log("Case 4")
+
+      pt2Counter++
+    }
+  }
+}
+
+console.log(pt2Counter)
