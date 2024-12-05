@@ -1,50 +1,83 @@
 import { readFileSync } from "fs"
 import { join } from "path"
+import { getMatrixFromString } from "../utils/index.js"
 
 const input = readFileSync(join(import.meta.dirname, "./input.txt"), "utf-8")
+// check horr
+const getFoundAmount = (input) => {
+  const pattern = new RegExp("(?=(XMAS|SAMX))", "g")
+  return [...input.matchAll(pattern)].length
+}
 
-// Horizontal Matches
-const horizontalFinds = [...input.matchAll(/(?=(XMAS|SAMX))/g)]
-let counter = horizontalFinds.length
+let counter = getFoundAmount(input)
 
-// Prepare the matrix for vertical and diagonal checks
-const matrix = input.split("\n").map((row) => row.split(""))
-const size = matrix.length
+const matrix = getMatrixFromString(input)
 
-// Extract columns for vertical checks
 const columns = []
 for (let x = 0; x < matrix[0].length; x++) {
   const column = matrix.map((row) => row[x])
   columns.push(column.join(""))
 }
+//check vert
 const vertical = columns.join("\n")
+counter += getFoundAmount(vertical)
 
-// Vertical Matches
-const verticalFinds = [...vertical.matchAll(/(?=(XMAS|SAMX))/g)]
-counter += verticalFinds.length
-
-// Extract all diagonals
+// get diag
 function extractDiagonals(mat) {
   const diagonals = []
-  const n = mat.length
-  const m = mat[0].length
+  const height = mat.length
+  const width = mat[0].length
 
-  // Top-left to bottom-right diagonals
-  for (let d = 0; d < n + m - 1; d++) {
+  const amountOfDiagonals = height + width - 1
+  /*
+  Per ogni direzione ci sono b + a diagonali, - 1 perche' e' quella centrale
+  
+      0 1 2 3 4
+
+  0   X X X X X
+  1   X X X X X
+  2   X X X X X
+  3   X X X X X
+  4   X X X X X
+  
+  */
+
+  // top-left ->  bottom-right
+  // d => diagonale, non x perche' non parte sempre da sx
+  for (let d = 0; d < amountOfDiagonals; d++) {
     let diag = []
-    for (let i = 0; i < n; i++) {
-      const j = d - i
-      if (j >= 0 && j < m) diag.push(mat[i][j])
+    for (let y = 0; y < height; y++) {
+      const diagX = d - y // => la diagonale si trova piu' in basso rispetto alla x
+      if (diagX >= 0 && diagX < width) diag.push(mat[y][diagX])
     }
     if (diag.length >= 4) diagonals.push(diag.join(""))
   }
 
-  // Top-right to bottom-left diagonals
-  for (let d = 0; d < n + m - 1; d++) {
+  // top-right -> bottom-left
+  for (let d = 0; d < amountOfDiagonals; d++) {
     let diag = []
-    for (let i = 0; i < n; i++) {
-      const j = i - (d - m + 1)
-      if (j >= 0 && j < m) diag.push(mat[i][j])
+    for (let y = 0; y < height; y++) {
+      //  const j = i - (d - m + 1);
+      const diagX = y - (d - width + 1)
+      //                   0 - (0 -   5   + 1)
+      //                   0 - (-4) => 0 + 4 => 4
+      /*
+      la diagonale per l'altro lato si calcola con y - (posizione x - b + 1)
+      quindi se sono alla diagonale 1 (la seconda in alto a dx), la y sara' 0, 
+      la prossima x in diagonale sara' 0 - (1 - 5 + 1) => 3
+      quindi se ho y = 0 d = 4, la mia prossima x sara' y - (x - w + 1) => 0 - (4 - 5 + 1) => 0
+            
+        d 4 3 2 1 0
+      y
+      0   X X X o X
+      1   X X o X X
+      2   X o X X X
+      3   o X X X X
+      4   X X X X X
+  
+*/
+
+      if (diagX >= 0 && diagX < width) diag.push(mat[y][diagX])
     }
     if (diag.length >= 4) diagonals.push(diag.join(""))
   }
@@ -52,13 +85,10 @@ function extractDiagonals(mat) {
   return diagonals
 }
 
-// Combine diagonals from both forward and reversed matrices
 const diagonals = extractDiagonals(matrix)
 const reversedMatrix = [...matrix].reverse()
 diagonals.push(...extractDiagonals(reversedMatrix))
-
-// Match diagonals
-const diagonalFinds = diagonals.join("\n").matchAll(/(?=(XMAS|SAMX))/g)
-counter += [...diagonalFinds].length
+// check diags
+counter += getFoundAmount(diagonals.join("\n"))
 
 console.log(counter)
