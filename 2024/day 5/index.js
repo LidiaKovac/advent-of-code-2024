@@ -33,13 +33,6 @@ const rulesStr = readFileSync(join(import.meta.dirname, "./rules.txt"), "utf-8")
 // 61,13,29
 // 97,13,75,29,47`
 
-const mtrx = getMatrixFromCommaSeparatedString(input)
-//!1. fn to find middle
-const findMiddle = (row) => {
-  return row[Math.ceil((row.length - 1) / 2)]
-}
-
-//!2. divide rules in arrays
 // const rulesStr = `47|53
 // 97|13
 // 97|61
@@ -61,6 +54,13 @@ const findMiddle = (row) => {
 // 47|29
 // 75|13
 // 53|13`
+const mtrx = getMatrixFromCommaSeparatedString(input)
+//!1. fn to find middle
+const findMiddle = (row) => {
+  return row[Math.ceil((row.length - 1) / 2)]
+}
+
+//!2. divide rules in arrays
 
 const rules = rulesStr.split("\n").map((r) => r.replaceAll("\r", "").split("|"))
 
@@ -80,10 +80,51 @@ const isCorrect = (row) => {
 }
 
 const correct = mtrx.filter((row) => isCorrect(row))
+const incorrect = mtrx.filter((row) => !isCorrect(row))
 
+//!calc correct sum
+// let sum = 0
+// for (let i = 0; i < correct.length; i++) {
+//   const row = correct[i]
+//   sum += parseInt(findMiddle(row))
+// }
+
+// console.log(sum)
+//!pt. 2
+incorrect.map((row) => {
+  const appropriateRules = rules.filter(
+    (rule) => row.includes(rule[0]) && row.includes(rule[1])
+  )
+  console.log("Row before", row)
+  appropriateRules.forEach((rule) => {
+    const [first, second] = rule
+    //if we are here, it means first is not first in row
+    if (row.indexOf(first) > row.indexOf(second)) {
+      console.log("RULE: ", rule)
+      const firstI = row.indexOf(first)
+      row.splice(firstI, 1) //delete element not in order
+      const secondI = row.indexOf(second)
+      if (secondI > 0) {
+        console.log("Deleted :", first, row)
+        row.splice(secondI - 1, 0, first) //re add element before second element
+        console.log("Row modified, added ", first, " at index ", secondI - 1)
+        console.log("Row after mod: ", row)
+      } else {
+        console.log("Deleted :", first, row)
+        row.splice(0, 0, first) //re add element before second element
+        console.log("Row modified, added ", first, " at index ", 0)
+        console.log("Row after mod: ", row)
+      }
+    }
+  })
+  console.log("Row after", row)
+
+  return row
+})
+// console.log(incorrect)
 let sum = 0
-for (let i = 0; i < correct.length; i++) {
-  const row = correct[i]
+for (let i = 0; i < incorrect.length; i++) {
+  const row = incorrect[i]
   sum += parseInt(findMiddle(row))
 }
 
