@@ -16,17 +16,13 @@ const input = `
 32019012
 01329801
 10456732`
-const paths = new Set()
 const findPaths = (mtrx, y, x, curr = 1, path = []) => {
   const [top, bottom, left, right] = getDirections(mtrx, y, x)
   if (curr == 1) {
     path.push({ y, x, el: mtrx[y][x] }) //!
-    console.log(parsePathIntoString(path))
   }
 
   if (curr > 9) {
-    paths.add(parsePathIntoString(path))
-    console.log(paths)
     return path
   }
   //path should not be pushed if last num !== 9
@@ -41,69 +37,67 @@ const findPaths = (mtrx, y, x, curr = 1, path = []) => {
     for (const p of possibleRoutes) {
       const index = path.findIndex((step) => step.el == curr)
       if (index > -1) {
-        path.slice(0, index + 1)
+        path = path.slice(0, index + 1)
+        console.log("Taglia")
       } else {
-        console.log("Following path", p)
-        //dove sono
-        //le direzioni in cui posso andare
-        //la direzione + val
-        if (p.dir === "top") {
-          console.log("Moving top")
 
+        if (p.dir === "top") {
           path.push({ y: y - 1, x, el: p.val, dir: "top" })
-          console.log(parsePathIntoString(path))
           findPaths(mtrx, y - 1, x, curr + 1, path)
         }
         if (p.dir === "bottom") {
-          console.log("Moving bottom")
 
           path.push({ y: y + 1, x, el: p.val, dir: "bottom" })
-          console.log(parsePathIntoString(path))
+
           findPaths(mtrx, y + 1, x, curr + 1, path)
         }
         if (p.dir === "left") {
-          console.log("Moving left")
 
           path.push({ y, x: x - 1, el: p.val, dir: "left" })
-          console.log(parsePathIntoString(path))
+
           findPaths(mtrx, y, x - 1, curr + 1, path)
         }
         if (p.dir === "right") {
-          console.log("Moving right")
 
           path.push({ y, x: x + 1, el: p.val, dir: "right" })
-          console.log(parsePathIntoString(path))
+
           findPaths(mtrx, y, x + 1, curr + 1, path)
         }
       }
+      console.log("Current path", parsePathIntoString(path))
+      if (path.length == 9) {
+
+      }
+
     }
   } else {
-    console.log("Only one path found")
+
+
     if (top == curr) {
-      console.log("Moving top")
+
 
       path.push({ y: y - 1, x, el: top, dir: "top" })
-      console.log(parsePathIntoString(path))
+
       findPaths(mtrx, y - 1, x, curr + 1, path)
     } else if (bottom == curr) {
-      console.log("Moving bottom")
 
       path.push({ y: y + 1, x, el: bottom, dir: "bottom" })
-      console.log(parsePathIntoString(path))
+
       findPaths(mtrx, y + 1, x, curr + 1, path)
     } else if (left == curr) {
-      console.log("Moving left")
 
       path.push({ y, x: x - 1, el: left, dir: "left" })
-      console.log(parsePathIntoString(path))
+
       findPaths(mtrx, y, x - 1, curr + 1, path)
     } else if (right == curr) {
-      console.log("Moving right")
 
       path.push({ y, x: x + 1, el: right, dir: "right" })
-      console.log(parsePathIntoString(path))
+
       findPaths(mtrx, y, x + 1, curr + 1, path)
     }
+    if (path.length == 9) console.log("PATH DISPONIBILE")
+    console.log(parsePathIntoString(path))
+
   }
 
   return null
