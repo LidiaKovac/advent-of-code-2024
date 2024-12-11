@@ -6,23 +6,25 @@ import {
   getRight,
   getTop,
 } from "../utils/index.js"
+import { readFileSync, writeFileSync } from "fs"
+import { join } from "path"
+// const input = `89010123
+// 78121874
+// 87430965
+// 96549874
+// 45678903
+// 32019012
+// 01329801
+// 10456732`
+const input = readFileSync(
+  join(import.meta.dirname, "./input.txt"),
+  "utf-8"
+).trim()
 
-const input = `89010123
-78121874
-87430965
-96549874
-45678903
-32019012
-01329801
-10456732`
-
-console.log(getMatrixFromString(input))
 
 const paths = []
 const findPaths = (mtrx, y, x, curr = 1, path = []) => {
-  console.log("PIPPO", path)
   if (path.length == 10) {
-    console.log("PATH DISPONIBILE", path)
     paths[paths.length - 1].add(parsePathIntoString(path))
   }
   const [top, bottom, left, right] = getDirections(mtrx, y, x)
@@ -35,11 +37,8 @@ const findPaths = (mtrx, y, x, curr = 1, path = []) => {
     { dir: "left", ny: y, nx: x - 1, val: left },
     { dir: "right", ny: y, nx: x + 1, val: right },
   ].filter((el) => el.val == curr)
-  console.log(possibleRoutes.length)
   if (possibleRoutes.length > 1) {
-    console.log("There are several paths")
     for (const p of possibleRoutes) {
-      console.log("Following path", p)
       const index = path.findIndex((step) => step.el == curr)
       if (index > -1) {
         path = path.slice(0, index)
@@ -82,19 +81,15 @@ const parsePathIntoString = (arr) => {
 const matrix = getMatrixFromString(input)
 
 for (let y = 0; y < matrix.length; y++) {
-  const row = matrix[y]
   for (let x = 0; x < matrix[y].length; x++) {
     const col = matrix[y][x]
     if (col === "0") {
-      console.log("Calculating paths for ", y, x)
       paths.push(new Set())
       findPaths(matrix, y, x)
     }
   }
 }
 
-console.log("FINAle")
-console.log()
 
 let tot = 0
 for (const row of paths) {
@@ -110,4 +105,9 @@ for (const row of paths) {
   }
   tot += alreadySeenCoords.length
 }
-console.log(tot)
+console.log("Totale parte 1", tot)
+let tot2 = 0
+for (const row of paths) {
+  tot2 += row.size
+}
+console.log("Totale parte 2", tot2)
