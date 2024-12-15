@@ -15,47 +15,31 @@ p = position
     
 */
 
-const input = `
-p=0,4 v=3,-3
-p=6,3 v=-1,-3
-p=10,3 v=-1,2
-p=2,0 v=2,-1
-p=0,0 v=1,3
-p=3,0 v=-2,-2
-p=7,6 v=-1,-3
-p=3,0 v=-1,-2
-p=9,3 v=2,3
-p=7,3 v=-1,2
-p=2,4 v=2,-3
-p=9,5 v=-3,-3`
+// const input = `
+// p=0,4 v=3,-3
+// p=6,3 v=-1,-3
+// p=10,3 v=-1,2
+// p=2,0 v=2,-1
+// p=0,0 v=1,3
+// p=3,0 v=-2,-2
+// p=7,6 v=-1,-3
+// p=3,0 v=-1,-2
+// p=9,3 v=2,3
+// p=7,3 v=-1,2
+// p=2,4 v=2,-3
+// p=9,5 v=-3,-3`
+import { readFileSync} from "fs"
+
+
 
 import { writeFileSync } from "fs"
 import { join } from "path"
-const second = (p, v) => {
+const input = readFileSync(join(import.meta.dirname, "./input.txt"), "utf-8")
+const second = (p, v, mtrx) => {
   const { x, y } = p
   const { x: mx, y: my } = v
-  let nx = x + mx
-  let ny = y + my
-  if (ny >= mtrx.length) {
-    console.log("out of boundary bottom", ny, mtrx.length)
-    const newPos = ny - mtrx.length
-    ny = newPos
-  }
-  if (nx >= mtrx[0].length) {
-    console.log("out of boundary right", nx, mtrx[0].length)
-
-    const newPos = nx - mtrx[0].length
-    console.log("NEW POS", x, nx, mx, newPos)
-    nx = newPos
-  }
-  if (ny < 0) {
-    const newPos = mtrx.length + ny
-    ny = newPos
-  }
-  if (nx < 0) {
-    const newPos = mtrx[0].length + nx
-    nx = newPos
-  }
+  let nx = (x + mx + mtrx[0].length) % mtrx[0].length
+  let ny = (y + my + mtrx.length) % mtrx.length
 
   return [nx, ny]
 }
@@ -70,29 +54,38 @@ const robots = input
       v: { x: parseInt(vx), y: parseInt(vy) },
     }
   })
-console.log(robots)
 // const matrix = new Array(103).map((row) => new Array(101).fill("."))
 // const example_matrix = [...new Array(7).fill([...new Array(11).fill(".")])]
 const example_matrix = []
 
-for (let i = 0; i < 7; i++) {
+
+for (let i = 0; i < 103; i++) {
   example_matrix.push([])
-  for (let y = 0; y < 11; y++) {
+  for (let y = 0; y < 101; y++) {
     example_matrix[i].push(".")
   }
 }
-
+console.log(
+  "Initial matrix dimensions:",
+  example_matrix.length,
+  example_matrix[0].length
+)
 const writeToFile = (mtrx) => {
   const str = mtrx.map((row) => row.join("")).join("\n")
+      // generate(str).then((res) =>
+      //   writeFileSync(
+      //     join(import.meta.dirname, `./tmp/img_${i}.png`),
+      //     Buffer.from(res.split(",")[1], "base64")
+      //   )
+      // )
 
   writeFileSync(join(import.meta.dirname, "./output.txt"), str)
 }
 
 const addInitialPositionOnMatrix = (mtrx, bots) => {
   for (const robot of bots) {
-    console.log(mtrx[robot.p.y])
     mtrx[robot.p.y][robot.p.x] = "1"
-    writeToFile(mtrx)
+    // writeToFile(mtrx)
   }
   return mtrx
 }
@@ -106,10 +99,9 @@ const pause = async (s) => {
 const mtrx = addInitialPositionOnMatrix(example_matrix, robots)
 
 const moveOnMatrix = (mtrx, robot) => {
-  mtrx[robot.p.y][robot.p.y] = "."
-  let [nx, ny] = second(robot.p, robot.v)
+  mtrx[robot.p.y][robot.p.x] = "."
+  let [nx, ny] = second(robot.p, robot.v, mtrx)
 
-  console.log(`Moving from ${robot.p.x}/${robot.p.y} to ${nx}/${ny}`)
 
   if (isNaN(mtrx[robot.p.y][robot.p.x])) {
     mtrx[robot.p.y][robot.p.x] = "."
@@ -126,14 +118,65 @@ const moveOnMatrix = (mtrx, robot) => {
   }
   return mtrx
 }
-
+let newMatrix = []
 for (let s = 0; s < 100; s++) {
+  console.log("Seconds", s)
   for (let i = 0; i < robots.length; i++) {
     const bot = robots[i]
-    // await pause(200)
-    writeToFile(moveOnMatrix(mtrx, bot))
-    const [nx, ny] = second(bot.p, bot.v)
+    // await pause(20)
+    newMatrix = moveOnMatrix(newMatrix.length > 0 ? newMatrix : mtrx, bot)
+    // console.log(newMatrix.length)
+    if(newMatrix) {
+      writeToFile(newMatrix)
+      
+    } else {
+      console.log("Matrix is falsy", newMatrix)
+      break
+    }
+    const [nx, ny] = second(
+      bot.p,
+      bot.v,
+      newMatrix.length > 0 ? newMatrix : mtrx
+    )
     robots[i].p = { x: nx, y: ny }
-    console.log("new bot", mtrx[0].length, robots[i])
   }
 }
+const middleY = Math.floor(newMatrix.length / 2)
+const middleX = Math.floor(newMatrix[0].length / 2)
+
+// for (let y = 0; y < newMatrix.length; y++) {
+//   newMatrix[y][middleX] = " "
+// }
+// for (let x = 0; x < newMatrix[0].length; x++) {
+//   newMatrix[middleY][x] = " "
+// }
+
+const topHalf = newMatrix.slice(0, middleY)
+const bottomHalf = newMatrix.slice(middleY + 1)
+
+const topLeft = topHalf.map((row) => row.slice(0, middleX))
+const topRight = topHalf.map((row) => row.slice(middleX + 1))
+
+const bottomLeft = bottomHalf.map((row) => row.slice(0, middleX))
+const bottomRight = bottomHalf.map((row) => row.slice(middleX + 1))
+
+// After your robot movement operations
+console.log("Final matrix dimensions:", newMatrix.length, newMatrix[0].length)
+
+// And check the last few rows
+console.log("Last two rows of matrix:")
+console.log(newMatrix[newMatrix.length - 2])
+console.log(newMatrix[newMatrix.length - 1])
+const quadrants = [topLeft, topRight, bottomLeft, bottomRight]
+let tot = 1
+for (const quad of quadrants) {
+  const str = quad.map((row) => row.join("")).join("")
+
+  const matches = [...str.matchAll(new RegExp("[1-9]", "g"))].map((m) =>
+    parseInt(m[0])
+  )
+  const robotsPerQuadrant = matches.reduce((acc, curr) => acc + curr, 0)
+  tot *= robotsPerQuadrant
+  // console.log(tot)
+}
+console.log("TOTAL", tot)
